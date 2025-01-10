@@ -1,14 +1,11 @@
 # Copyright 2022 ACSONE SA/NV
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/LGPL).
 
-import asyncio
 import logging
-import threading
 from functools import partial
 from itertools import chain
 from typing import Any, Callable, Dict, List, Tuple
 
-from a2wsgi import ASGIMiddleware
 from starlette.middleware import Middleware
 from starlette.routing import Mount
 
@@ -17,28 +14,10 @@ from odoo import _, api, exceptions, fields, models, tools
 from fastapi import APIRouter, Depends, FastAPI
 
 from .. import dependencies
+from ..middleware import ASGIMiddleware
+from ..pools import fastapi_app_pool
 
 _logger = logging.getLogger(__name__)
-
-
-# Thread-local storage for event loops
-# Using a thread-local storage allows to have a dedicated event loop per thread
-# and avoid the need to create a new event loop for each request. It's also
-# compatible with the multi-worker mode of Odoo.
-_event_loop_storage = threading.local()
-
-
-def get_or_create_event_loop() -> asyncio.AbstractEventLoop:
-    """
-    Get or create a reusable event loop for the current thread.
-    """
-    if not hasattr(_event_loop_storage, "loop"):
-        loop = asyncio.new_event_loop()
-        loop_thread = threading.Thread(target=loop.run_forever, daemon=True)
-        loop_thread.start()
-        _event_loop_storage.loop = loop
-        _event_loop_storage.thread = loop_thread
-    return _event_loop_storage.loop
 
 
 class FastapiEndpoint(models.Model):
@@ -220,14 +199,9 @@ class FastapiEndpoint(models.Model):
         return f"{self._name}:{self.id}:{path}"
 
     def _reset_app(self):
-        self.get_app.clear_cache(self)
+        fastapi_app_pool.invalidate(self.root_path, self.env)
 
     @api.model
-    @tools.ormcache("root_path")
-    # TODO cache on thread local by db to enable to get 1 middelware by
-    # thread when odoo runs in multi threads mode and to allows invalidate
-    # specific entries in place og the overall cache as we have to do into
-    # the _rest_app method
     def get_app(self, root_path):
         record = self.search([("root_path", "=", root_path)])
         if not record:
@@ -235,8 +209,7 @@ class FastapiEndpoint(models.Model):
         app = FastAPI()
         app.mount(record.root_path, record._get_app())
         self._clear_fastapi_exception_handlers(app)
-        event_loop = get_or_create_event_loop()
-        return ASGIMiddleware(app, loop=event_loop)
+        return ASGIMiddleware(app)
 
     def _clear_fastapi_exception_handlers(self, app: FastAPI) -> None:
         """
