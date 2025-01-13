@@ -15,7 +15,6 @@ from fastapi import APIRouter, Depends, FastAPI
 
 from .. import dependencies
 from ..middleware import ASGIMiddleware
-from ..pools import fastapi_app_pool
 
 _logger = logging.getLogger(__name__)
 
@@ -122,10 +121,10 @@ class FastapiEndpoint(models.Model):
         return tuple(res)
 
     @api.model
-    def _routing_impacting_fields(self) -> Tuple[str]:
+    def _routing_impacting_fields(self) -> Tuple[str, ...]:
         """The list of fields requiring to refresh the mount point of the pp
         into odoo if modified"""
-        return ("root_path",)
+        return ("root_path", "save_http_session")
 
     #
     # end of endpoint.route.sync.mixin methods implementation
@@ -199,7 +198,17 @@ class FastapiEndpoint(models.Model):
         return f"{self._name}:{self.id}:{path}"
 
     def _reset_app(self):
-        fastapi_app_pool.invalidate(self.root_path, self.env)
+        self._reset_app_cache_marker.clear_cache(self)
+
+    @tools.ormcache()
+    def _reset_app_cache_marker(self):
+        """This methos is used to get a way to mark the orm cache as dirty
+        when the app is reset. By marking the cache as dirty, the system
+        will signal to others instances that the cache is not up to date
+        and that they should invalidate their cache as well. This is required
+        to ensure that any change requiring a reset of the app is propagated
+        to all the running instances.
+        """
 
     @api.model
     def get_app(self, root_path):
