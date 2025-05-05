@@ -213,8 +213,17 @@ class FastapiEndpoint(models.Model):
     @api.model
     @tools.ormcache("path")
     def get_endpoint(self, path):
-        root_path = "/" + path.split("/")[1]
-        endpoint = self.search([("root_path", "=", root_path)])[:1] or False
+        # try to match the request url with the most similar endpoint
+        endpoints_by_length = self.search([]).sorted(
+            lambda fe: len(fe.root_path), reverse=True
+        )
+        endpoint = False
+        while endpoints_by_length:
+            candidate_endpoint = endpoints_by_length[0]
+            if path.startswith(candidate_endpoint.root_path):
+                endpoint = candidate_endpoint
+                break
+            endpoints_by_length -= candidate_endpoint
         return endpoint
 
     @api.model
