@@ -12,6 +12,8 @@
     "author": "ACSONE SA/NV, " "Odoo Community Association (OCA)",
     "maintainers": ["lmignon"],
     "website": "https://github.com/OCA/rest-framework",
-    "external_dependencies": {"python": ["marshmallow", "marshmallow-objects>=2.0.0"]},
+    "external_dependencies": {
+        "python": ["marshmallow<4.0.0", "marshmallow-objects>=2.0.0"]
+    },
     "installable": True,
 }
