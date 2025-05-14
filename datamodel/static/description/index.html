@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
@@ -9,10 +8,11 @@
 
 /*
 :Author: David Goodger (goodger@python.org)
-:Id: $Id: html4css1.css 8954 2022-01-20 10:10:25Z milde $
+:Id: $Id: html4css1.css 9511 2024-01-13 09:50:07Z milde $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
+Despite the name, some widely supported CSS2 features are used.
 
 See https://docutils.sourceforge.io/docs/howto/html-stylesheets.html for how to
 customize this style sheet.
@@ -275,7 +275,7 @@ pre.literal-block, pre.doctest-block, pre.math, pre.code {
   margin-left: 2em ;
   margin-right: 2em }
 
-pre.code .ln { color: grey; } /* line numbers */
+pre.code .ln { color: gray; } /* line numbers */
 pre.code, code { background-color: #eeeeee }
 pre.code .comment, code .comment { color: #5C6576 }
 pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
@@ -301,7 +301,7 @@ span.option {
 span.pre {
   white-space: pre }
 
-span.problematic {
+span.problematic, pre.problematic {
   color: red }
 
 span.section-subtitle {
@@ -393,20 +393,20 @@ Models.</p>
 <p>To define your own datamodel you just need to create a class that inherits from
 <tt class="docutils literal">odoo.addons.datamodel.core.Datamodel</tt></p>
 <pre class="code python literal-block">
-<span class="kn">from</span> <span class="nn">marshmallow</span> <span class="kn">import</span> <span class="n">fields</span><span class="w">
+<span class="kn">from</span><span class="w"> </span><span class="nn">marshmallow</span><span class="w"> </span><span class="kn">import</span> <span class="n">fields</span><span class="w">
 
-</span><span class="kn">from</span> <span class="nn">odoo.addons.base_rest</span> <span class="kn">import</span> <span class="n">restapi</span><span class="w">
-</span><span class="kn">from</span> <span class="nn">odoo.addons.component.core</span> <span class="kn">import</span> <span class="n">Component</span><span class="w">
-</span><span class="kn">from</span> <span class="nn">odoo.addons.datamodel.core</span> <span class="kn">import</span> <span class="n">Datamodel</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">odoo.addons.base_rest</span><span class="w"> </span><span class="kn">import</span> <span class="n">restapi</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">odoo.addons.component.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">odoo.addons.datamodel.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Datamodel</span><span class="w">
 
 
-</span><span class="k">class</span> <span class="nc">PartnerShortInfo</span><span class="p">(</span><span class="n">Datamodel</span><span class="p">):</span><span class="w">
+</span><span class="k">class</span><span class="w"> </span><span class="nc">PartnerShortInfo</span><span class="p">(</span><span class="n">Datamodel</span><span class="p">):</span><span class="w">
 </span>    <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;partner.short.info&quot;</span><span class="w">
 
 </span>    <span class="nb">id</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Integer</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="w">
 </span>    <span class="n">name</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="w">
 
-</span><span class="k">class</span> <span class="nc">PartnerInfo</span><span class="p">(</span><span class="n">Datamodel</span><span class="p">):</span><span class="w">
+</span><span class="k">class</span><span class="w"> </span><span class="nc">PartnerInfo</span><span class="p">(</span><span class="n">Datamodel</span><span class="p">):</span><span class="w">
 </span>    <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;partner.info&quot;</span><span class="w">
 </span>    <span class="n">_inherit</span> <span class="o">=</span> <span class="s2">&quot;partner.short.info&quot;</span><span class="w">
 
@@ -419,18 +419,18 @@ Models.</p>
 </pre>
 <p>As for odoo models, you can extend the <cite>base</cite> datamodel by inheriting of <cite>base</cite>.</p>
 <pre class="code python literal-block">
-<span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Datamodel</span><span class="p">):</span><span class="w">
+<span class="k">class</span><span class="w"> </span><span class="nc">Base</span><span class="p">(</span><span class="n">Datamodel</span><span class="p">):</span><span class="w">
 </span>    <span class="n">_inherit</span> <span class="o">=</span> <span class="s2">&quot;base&quot;</span><span class="w">
 
-</span>    <span class="k">def</span> <span class="nf">_my_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><span class="w">
+</span>    <span class="k">def</span><span class="w"> </span><span class="nf">_my_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><span class="w">
 </span>        <span class="k">pass</span>
 </pre>
 <p>Datamodels are available through the <cite>datamodels</cite> registry provided by the Odoo’s environment.</p>
 <pre class="code python literal-block">
-<span class="k">class</span> <span class="nc">ResPartner</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span><span class="w">
+<span class="k">class</span><span class="w"> </span><span class="nc">ResPartner</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span><span class="w">
 </span>    <span class="n">_inherit</span> <span class="o">=</span> <span class="s2">&quot;res.partner&quot;</span><span class="w">
 
-</span>    <span class="k">def</span> <span class="nf">_to_partner_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><span class="w">
+</span>    <span class="k">def</span><span class="w"> </span><span class="nf">_to_partner_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><span class="w">
 </span>        <span class="n">PartnerInfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">datamodels</span><span class="p">[</span><span class="s2">&quot;partner.info&quot;</span><span class="p">]</span><span class="w">
 </span>        <span class="n">partner_info</span> <span class="o">=</span> <span class="n">PartnerInfo</span><span class="p">(</span><span class="n">partial</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span>        <span class="n">partner_info</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">partner</span><span class="o">.</span><span class="n">id</span><span class="w">
@@ -445,10 +445,10 @@ Models.</p>
 </pre>
 <p>The Odoo’s environment is also available into the datamodel instance.</p>
 <pre class="code python literal-block">
-<span class="k">class</span> <span class="nc">MyDataModel</span><span class="p">(</span><span class="n">Datamodel</span><span class="p">):</span><span class="w">
+<span class="k">class</span><span class="w"> </span><span class="nc">MyDataModel</span><span class="p">(</span><span class="n">Datamodel</span><span class="p">):</span><span class="w">
 </span>    <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;my.data.model&quot;</span><span class="w">
 
-</span>    <span class="k">def</span> <span class="nf">_my_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><span class="w">
+</span>    <span class="k">def</span><span class="w"> </span><span class="nf">_my_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><span class="w">
 </span>        <span class="n">partners</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;res.partner&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">search</span><span class="p">([])</span>
 </pre>
 <div class="admonition warning">
@@ -498,7 +498,9 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <div class="section" id="maintainers">
 <h2><a class="toc-backref" href="#toc-entry-7">Maintainers</a></h2>
 <p>This module is maintained by the OCA.</p>
-<a class="reference external image-reference" href="https://odoo-community.org"><img alt="Odoo Community Association" src="https://odoo-community.org/logo.png" /></a>
+<a class="reference external image-reference" href="https://odoo-community.org">
+<img alt="Odoo Community Association" src="https://odoo-community.org/logo.png" />
+</a>
 <p>OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.</p>
