@@ -51,7 +51,7 @@ methods. See documentation to learn more about how to create a new app.
         Like the other demo endpoint but with multi-slash
     </field>
     <field name="app">demo</field>
-    <field name="root_path">/fastapi/demo</field>
+    <field name="root_path">/fastapi/demo-multi</field>
     <field name="demo_auth_method">http_basic</field>
     <field name="user_id" ref="my_demo_app_user" />
   </record>

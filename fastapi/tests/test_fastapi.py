@@ -20,7 +20,11 @@ class FastAPIHttpCase(HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.fastapi_demo_app = cls.env.ref("fastapi.fastapi_endpoint_demo")
-        cls.fastapi_demo_app._handle_registry_sync()
+        cls.fastapi_multi_demo_app = cls.env.ref(
+            "fastapi.fastapi_endpoint_multislash_demo"
+        )
+        cls.fastapi_apps = cls.fastapi_demo_app + cls.fastapi_multi_demo_app
+        cls.fastapi_apps._handle_registry_sync()
         lang = (
             cls.env["res.lang"]
             .with_context(active_test=False)
@@ -189,3 +193,9 @@ class FastAPIHttpCase(HttpCase):
             EndPoint._find_first_matching_url_path(paths, "/fastapi/v1/test"),
             "/fastapi/v1",
         )
+
+    def test_multi_slash(self):
+        route = "/fastapi/demo-multi/demo/"
+        response = self.url_open(route, timeout=20)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.fastapi_multi_demo_app.root_path, str(response.url))
