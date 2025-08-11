@@ -7,16 +7,19 @@ import json
 import logging
 import traceback
 
+from psycopg2.errors import OperationalError
 from werkzeug.urls import url_encode, url_join
 
 from odoo import exceptions, registry
 from odoo.http import Response, request
+from odoo.service.model import PG_CONCURRENCY_ERRORS_TO_RETRY
 
 from odoo.addons.base_rest.http import JSONEncoder
 from odoo.addons.component.core import AbstractComponent
 
 from ..exceptions import (
     RESTServiceDispatchException,
+    RESTServiceMissingErrorException,
     RESTServiceUserErrorException,
     RESTServiceValidationErrorException,
 )
@@ -43,6 +46,14 @@ class BaseRESTService(AbstractComponent):
         try:
             with self.env.cr.savepoint():
                 result = super().dispatch(method_name, *args, params=params)
+        except exceptions.MissingError as orig_exception:
+            self._dispatch_exception(
+                method_name,
+                RESTServiceMissingErrorException,
+                orig_exception,
+                *args,
+                params=params,
+            )
         except exceptions.ValidationError as orig_exception:
             self._dispatch_exception(
                 method_name,
@@ -102,6 +113,15 @@ class BaseRESTService(AbstractComponent):
                 log_entry_url = self._get_log_entry_url(log_entry)
         except Exception as e:
             _logger.exception("Rest Log Error Creation: %s", e)
+        # let the OperationalError bubble up to the retrying mechanism
+        # We can't wrap the OperationalError because we want to let it
+        # bubble up to the retrying mechanism, it will be handled by
+        # the default handler at the end of the chain.
+        if (
+            isinstance(orig_exception, OperationalError)
+            and orig_exception.pgcode in PG_CONCURRENCY_ERRORS_TO_RETRY
+        ):
+            raise orig_exception
         raise exception_klass(exc_msg, log_entry_url) from orig_exception
 
     def _get_exception_message(self, exception):
