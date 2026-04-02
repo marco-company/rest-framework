@@ -8,6 +8,8 @@ setuptools.setup(
     description="Meta package for oca-rest-framework Odoo addons",
     version=version,
     install_requires=[
+        'odoo-addon-api_log>=16.0dev,<16.1dev',
+        'odoo-addon-api_log_mail>=16.0dev,<16.1dev',
         'odoo-addon-auth_partner>=16.0dev,<16.1dev',
         'odoo-addon-base_rest>=16.0dev,<16.1dev',
         'odoo-addon-base_rest_auth_api_key>=16.0dev,<16.1dev',
@@ -22,6 +24,9 @@ setuptools.setup(
         'odoo-addon-fastapi_auth_jwt_demo>=16.0dev,<16.1dev',
         'odoo-addon-fastapi_auth_partner>=16.0dev,<16.1dev',
         'odoo-addon-fastapi_encrypted_errors>=16.0dev,<16.1dev',
+        'odoo-addon-fastapi_endpoint_context>=16.0dev,<16.1dev',
+        'odoo-addon-fastapi_log>=16.0dev,<16.1dev',
+        'odoo-addon-fastapi_log_mail>=16.0dev,<16.1dev',
         'odoo-addon-graphql_base>=16.0dev,<16.1dev',
         'odoo-addon-graphql_demo>=16.0dev,<16.1dev',
         'odoo-addon-pydantic>=16.0dev,<16.1dev',
