@@ -13,7 +13,6 @@ from odoo import _, api, exceptions, fields, models, tools
 
 from fastapi import APIRouter, Depends, FastAPI
 
-from .. import dependencies
 from ..middleware import ASGIMiddleware
 
 _logger = logging.getLogger(__name__)
@@ -65,6 +64,7 @@ class FastapiEndpoint(models.Model):
         "unexpecteed disk space consumption.",
         default=True,
     )
+    expose_doc_urls = fields.Boolean("Expose FastAPI docs", default=True)
 
     @api.depends("root_path")
     def _compute_root_path(self):
@@ -150,7 +150,7 @@ class FastapiEndpoint(models.Model):
     @api.model
     def _fastapi_app_fields(self) -> List[str]:
         """The list of fields requiring to refresh the fastapi app if modified"""
-        return []
+        return ["expose_doc_urls"]
 
     def _make_routing_rule(self, options=None):
         """Generator of rule"""
@@ -316,19 +316,25 @@ class FastapiEndpoint(models.Model):
         return app
 
     def _get_app_dependencies_overrides(self) -> Dict[Callable, Callable]:
+        # Import here to avoid circular import while waiting for lazy imports
+        from ..dependencies import company_id, fastapi_endpoint_id
+
         return {
-            dependencies.fastapi_endpoint_id: partial(lambda a: a, self.id),
-            dependencies.company_id: partial(lambda a: a, self.company_id.id),
+            fastapi_endpoint_id: partial(lambda a: a, self.id),
+            company_id: partial(lambda a: a, self.company_id.id),
         }
 
     def _prepare_fastapi_app_params(self) -> Dict[str, Any]:
         """Return the params to pass to the Fast API app constructor"""
-        return {
+        to_return = {
             "title": self.name,
             "description": self.description,
             "middleware": self._get_fastapi_app_middlewares(),
             "dependencies": self._get_fastapi_app_dependencies(),
         }
+        if not self.expose_doc_urls:
+            to_return |= {"docs_url": None, "redoc_url": None, "openapi_url": None}
+        return to_return
 
     def _get_fastapi_routers(self) -> List[APIRouter]:
         """Return the api routers to use for the instance.
@@ -343,4 +349,7 @@ class FastapiEndpoint(models.Model):
 
     def _get_fastapi_app_dependencies(self) -> List[Depends]:
         """Return the dependencies to use for the fastapi app."""
-        return [Depends(dependencies.accept_language)]
+        # Import here to avoid circular import too
+        from ..dependencies import accept_language
+
+        return [Depends(accept_language)]
